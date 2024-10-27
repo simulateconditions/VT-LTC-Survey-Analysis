@@ -168,6 +168,7 @@ def get_severity(c):
   L = c.split()
   for elem in L:
       if 'SS=' in elem: result.add(elem[3:])
+  if len(result)==0: return '?'
   return ', '.join(list(result))
 
 
@@ -201,9 +202,9 @@ def pull_all_data(P,facility_type,columns_add):
             path_to_txt2 = os.path.join(txt2,txt_name)
             contents2 = readFile(path_to_txt2)
             data_pulled2 = pull_data(contents2,columns_add)
-            if facility_type == 'SNF':
-                print('Katja')
-                print(contents2)
+#            if facility_type == 'SNF':
+#                print('Katja')
+#                print(contents2)
             data_pulled = merge_dicts(data_pulled,data_pulled2,priority=1)
         except Exception as e:
             print(facility_type,'EXCEPTION',e,type(e),type(e).__name__)
@@ -213,6 +214,7 @@ def pull_all_data(P,facility_type,columns_add):
             contents3 = readFile(path_to_txt3)
             
             data_pulled3 = pull_data(contents3,columns_add)
+            print(data_pulled3['Severity Levels'])
             data_pulled = merge_dicts(data_pulled,data_pulled3)
         except Exception as e:
             print(facility_type,'EXCEPTION',e,type(e),type(e).__name__)

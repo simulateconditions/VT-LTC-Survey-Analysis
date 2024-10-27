@@ -148,6 +148,7 @@ def download_TYPE_links(TYPE):
 
 ##########################################################################################################
 def main_download(query,start_year,ALR,RCH,SNF):
+    print('HEREEEEE')
     currentYear = datetime.datetime.now().year
     global years
     if len(start_year)==4:
@@ -166,7 +167,7 @@ def main_download(query,start_year,ALR,RCH,SNF):
     if RCH and result!='STOP': 
         result = load_TYPE_links('RCH',47,search = query)  #47
     if SNF and result!='STOP': 
-        result = load_TYPE_links('SNF',4,search = query)#132
+        result = load_TYPE_links('SNF',45,search = query)#132
     print('downloading links that just loaded')
     if ALR and result!='STOP': 
         result = download_TYPE_links('ALR')
