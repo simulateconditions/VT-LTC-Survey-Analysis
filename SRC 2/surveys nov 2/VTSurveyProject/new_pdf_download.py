@@ -110,7 +110,7 @@ def load_TYPE_links(TYPE,n, search = None):
         p = SurveyListPage(i,TYPE.lower(),search)
         if p == 'STOP':return 'STOP' #IM NOT GOING TO SACRIFICE THAT MUCH SPEED, SO THIS WILL NEVER BE THE CASE
         links.extend(p.all_links())
-        write_file('Survey Statements/%s/%s.txt'%(TYPE,i),repr(p.all_links()))
+        write_file('Survey Statements/%s/PageLinks/%s.txt'%(TYPE,i),repr(p.all_links()))
     to_excel(links,TYPE)
 
 

@@ -63,7 +63,7 @@ class TkRootWindow():
 #        print('hello')
 
 def numfilestxt(TYPE):
-    p = 'Survey Statements/%s'%TYPE
+    p = 'Survey Statements/%s/PageLinks'%TYPE
     F = os.listdir(p)
     total = 0
     for f in F:
