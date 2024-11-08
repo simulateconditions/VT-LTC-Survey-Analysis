@@ -39,12 +39,15 @@ class TkRootWindow():
         self.root.geometry('%dx%d'%(self.width,self.width))
         if not ('Survey Statements' in os.listdir()):
             setup_file_system()
-    
+        self.download_button=None
+        self.analyze_button=None
 
     def mainloop(self):
         self.root.mainloop()
 
     def on_download():
+        if 'download_complete.txt' in os.listdir(): os.remove('download_complete.txt')
+        app_object.download_button.config(state=tk.DISABLED)
         global DOWNLOAD_THREAD
         start_year = variables['Start Year'].get()
         ALR,RCH,SNF = variables['ALR Download'].get(),variables['RCH Download'].get(),variables['SNF Download'].get()
@@ -52,6 +55,8 @@ class TkRootWindow():
 
         #main_download(variables['Query'].get(),ALR,RCH,SNF)
     def on_analyze():
+        if 'analyze_complete.txt' in os.listdir(): os.remove('analyze_complete.txt')
+        app_object.analyze_button.config(state=tk.DISABLED)
         global ANALYZE_THREAD
         RCH,ALR,SNF = variables['RCH Analyze'].get(),variables['ALR Analyze'].get(),variables['SNF Analyze'].get()
         columns_add = variables['columns to add'].get(1.0,tk.END).split(',')
@@ -95,6 +100,7 @@ def download_and_analyze():
         status_label.config(text = '')
      #stores control variables
     global variables
+    global app_object
     app_object = TkRootWindow()
     
     root = app_object.root
@@ -176,6 +182,7 @@ def download_and_analyze():
     download_button = ttk.Button(r_info,text='Download')
     download_button.grid(row = 10+shift,column=0,sticky = tk.W,padx=5,pady=5)
     download_button.configure(command=TkRootWindow.on_download)
+    app_object.download_button = download_button
     #download_status_var = tk.StringVar(value='Download Status: Not started')
     #ttk.Label(r_info, textvariable=download_status_var).grid(row = 12, column = 0,sticky = (tk.E + tk.W),padx = 5,pady=10)
 
@@ -209,7 +216,7 @@ def download_and_analyze():
     analyze_button = ttk.Button(analyze,text = 'Analyze')
     analyze_button.grid(row = 5+shift,column = 0,sticky = tk.W,padx=5,pady=5)
     analyze_button.configure(command=TkRootWindow.on_analyze)
-
+    app_object.analyze_button = analyze_button
     #analyze_status_var = tk.StringVar(value='Analysis Status: Not started')
     #ttk.Label(analyze, textvariable=analyze_status_var).grid(row = 7, column = 0,sticky = (tk.E + tk.W),padx = 5,pady=10)    
     
@@ -222,6 +229,17 @@ def download_and_analyze():
 #    view_button = ttk.Button(view,text='View')
 #    view_button.grid(row = 1,column=0,sticky = tk.W,padx=5,pady=5)
 #    view_button.configure(command=TkViewWindow.on_view)
+    def check_buttons():
+        files = os.listdir()
+        p = 'download_complete.txt'
+        if p in files:
+            app_object.download_button.config(state=tk.NORMAL)
+            os.remove(p)
+        p = 'analyze_complete.txt'
+        if p in files:
+            app_object.analyze_button.config(state=tk.NORMAL)
+            os.remove(p)
+        root.after(1000,check_buttons)
     def update_files():
         variables['SNF Files Down'].set(str(len(os.listdir('Survey Statements/SNF/PDF'))))
         variables['SNF Files Found'].set(str(numfilestxt('SNF')))    
@@ -237,6 +255,7 @@ def download_and_analyze():
         #print('here')
         root.after(1000,update_files)
     update_files()
+    check_buttons()
     def on_closing():
         global DOWNLOAD_THREAD
         global ANALYZE_THREAD 

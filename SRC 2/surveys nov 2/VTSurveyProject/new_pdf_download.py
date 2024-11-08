@@ -163,11 +163,11 @@ def main_download(query,start_year,ALR,RCH,SNF):
     print(query)
     result = 'go'
     if ALR: 
-        result = load_TYPE_links('ALR',2,search = query)#13
+        result = load_TYPE_links('ALR',1,search = query)#13
     if RCH and result!='STOP': 
         result = load_TYPE_links('RCH',47,search = query)  #47
     if SNF and result!='STOP': 
-        result = load_TYPE_links('SNF',45,search = query)#132
+        result = load_TYPE_links('SNF',132,search = query)#132
     print('downloading links that just loaded')
     if ALR and result!='STOP': 
         result = download_TYPE_links('ALR')
@@ -175,7 +175,8 @@ def main_download(query,start_year,ALR,RCH,SNF):
         result = download_TYPE_links('RCH')
     if SNF and result!='STOP': 
         result = download_TYPE_links('SNF')
+    
     print('done or program terminated')
-
+    write_file('download_complete.txt','Testing')
 #main()
 
