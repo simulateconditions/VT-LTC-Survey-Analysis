@@ -41,6 +41,7 @@ def get_violations(c):
     for v in VIOLATIONS:
         if v in c:  
           result.append(v)
+    if len(result)==0:return '?'
     return ','.join(result)
   
 

@@ -165,9 +165,9 @@ def main_download(query,start_year,ALR,RCH,SNF):
     if ALR: 
         result = load_TYPE_links('ALR',1,search = query)#13
     if RCH and result!='STOP': 
-        result = load_TYPE_links('RCH',47,search = query)  #47
+        result = load_TYPE_links('RCH',1,search = query)  #47
     if SNF and result!='STOP': 
-        result = load_TYPE_links('SNF',132,search = query)#132
+        result = load_TYPE_links('SNF',1,search = query)#132
     print('downloading links that just loaded')
     if ALR and result!='STOP': 
         result = download_TYPE_links('ALR')

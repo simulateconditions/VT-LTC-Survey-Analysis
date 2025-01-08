@@ -62,16 +62,26 @@ def data_to_json_excel(columns_add,ALR,RCH,SNF): #didn't use bools yet
 
 	#3) create new excels out of each jsons
     excel_path_root = os.path.join('Survey Statements')
-    excel_path = os.path.join(excel_path_root,'LTC_Survey_Data_2021_to_Present.xlsx')
+    excel_path_SNF = os.path.join(excel_path_root,'SNF_LTC_Survey_Data.xlsx')
+    excel_path_ALR = os.path.join(excel_path_root,'ALR_LTC_Survey_Data.xlsx')
+    excel_path_RCH = os.path.join(excel_path_root,'RCH_LTC_Survey_Data.xlsx')
 	#writer = 
     
-    if os.path.exists(excel_path): os.remove(excel_path)
-    if not (ALR==True or RCH==True or SNF==True): return
-    with pd.ExcelWriter(excel_path,engine='openpyxl') as writer:
-        if SNF: pd.read_json(snf_json_path).to_excel(writer,sheet_name ='snf')
-        if ALR: pd.read_json(alr_json_path).to_excel(writer,sheet_name="alr")
-        if RCH: pd.read_json(rch_json_path).to_excel(writer,sheet_name="rch")
-    print('\n***Complete! You will find your excel at: \n', excel_path,'\n\n')
+    if SNF and os.path.exists(excel_path_SNF): os.remove(excel_path_SNF)
+    if ALR and os.path.exists(excel_path_ALR): os.remove(excel_path_ALR)
+    if RCH and os.path.exists(excel_path_RCH): os.remove(excel_path_RCH)
+
+    #if not (ALR==True or RCH==True or SNF==True): return
+    if SNF:
+        with pd.ExcelWriter(excel_path_SNF,engine='openpyxl') as writer:
+            pd.read_json(snf_json_path).to_excel(writer)
+    if ALR:
+        with pd.ExcelWriter(excel_path_ALR,engine='openpyxl') as writer:
+            pd.read_json(alr_json_path).to_excel(writer)
+    if RCH: 
+        with pd.ExcelWriter(excel_path_RCH,engine='openpyxl') as writer:        
+            pd.read_json(rch_json_path).to_excel(writer)
+    print('\n***Complete! You will find your excel at: \n', excel_path_root,'\n\n')
 	
 
 
