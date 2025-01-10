@@ -7,6 +7,7 @@ import random
 import pandas as pd
 from .file_IO_setup import setup_file_system
 from .shared import pull_data_from_excel
+import ssl
 
 socket.setdefaulttimeout(15)
 
@@ -121,6 +122,7 @@ def to_excel(L,TYPE):
 
 
 def download_TYPE_links(TYPE):
+    ssl._create_default_https_context = ssl._create_unverified_context
     path = 'Survey Statements/%s/current_%s_pdf_links.xlsx'%(TYPE,TYPE)
     links = pull_data_from_excel(path,(0,))#('%s LINKS'%TYPE,))
     print(links)
@@ -137,7 +139,8 @@ def download_TYPE_links(TYPE):
         if not pdf_name in existing_files:
             try:
                 urlretrieve(link,os.path.join(destination_path,pdf_name)) 
-            except:
+            except Exception as e:
+                print(e)
                 failed.append(link)
         else: 
             print(link,'skipped')
@@ -163,11 +166,11 @@ def main_download(query,start_year,ALR,RCH,SNF):
     print(query)
     result = 'go'
     if ALR: 
-        result = load_TYPE_links('ALR',1,search = query)#13
+        result = load_TYPE_links('ALR',10,search = query)#13
     if RCH and result!='STOP': 
-        result = load_TYPE_links('RCH',1,search = query)  #47
+        result = load_TYPE_links('RCH',10,search = query)  #47
     if SNF and result!='STOP': 
-        result = load_TYPE_links('SNF',1,search = query)#132
+        result = load_TYPE_links('SNF',10,search = query)#132
     print('downloading links that just loaded')
     if ALR and result!='STOP': 
         result = download_TYPE_links('ALR')
@@ -175,7 +178,7 @@ def main_download(query,start_year,ALR,RCH,SNF):
         result = download_TYPE_links('RCH')
     if SNF and result!='STOP': 
         result = download_TYPE_links('SNF')
-    
+    print(result)
     print('done or program terminated')
     write_file('download_complete.txt','Testing')
 #main()

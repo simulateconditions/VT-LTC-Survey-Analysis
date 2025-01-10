@@ -211,7 +211,7 @@ def download_and_analyze():
     ttk.Label(analyze,textvariable=variables["SNF PDF's Converted"],borderwidth=1,relief='raised').grid(row=2+shift,column=1,padx=5)
 
     ttk.Label(analyze,text = 'Include Counts for: (comma separated items)').grid(row=3+shift,column = 0)
-    variables['columns to add'] = tk.Text(analyze, width = 40,height=5,font=('TkDefaultFont',16))
+    variables['columns to add'] = tk.Text(analyze, width = 20,height=3,font=('TkDefaultFont',12))
     variables['columns to add'].grid(sticky=(tk.W + tk.E))
     
     analyze_button = ttk.Button(analyze,text = 'Analyze')
