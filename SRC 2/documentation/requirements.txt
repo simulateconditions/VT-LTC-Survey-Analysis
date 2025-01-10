@@ -1,9 +1,14 @@
+numpy
 requests
 pandas
 openpyxl
+
+(Brew! in path)
 cv2
+pytesseract
+
 pdf2image
 PyPDF2
-pytesseract
+
 
 
