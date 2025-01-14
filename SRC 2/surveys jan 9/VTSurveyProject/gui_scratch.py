@@ -320,7 +320,8 @@ def download_and_analyze():
         global ANALYZE_THREAD 
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             write_file('kill_threads.txt','Testing')
-            #delete page_count_results.txt
+            if os.path.exists('page_count_results.txt'):
+                os.remove('page_count_results.txt')
             root.destroy()
     root.protocol("WM_DELETE_WINDOW",on_closing)
     app_object.mainloop()
