@@ -15,19 +15,7 @@ from datetime import date
 dates = {'JANUARY':1,'FEBRUARY':2,'MARCH':3,'APRIL':4,'MAY':5,'JUNE':6,'JULY':7,'AUGUST':8,'SEPTEMBER':9,'OCTOBER':10,'NOVEMBER':11,'DECEMBER':12}
 
     
-def get_all_letter_tags(c,letter):
-    tags = set()
-    for i in range(len(c)):
-      
-      if i<len(c) and i+1 < len(c) and i+4<=len(c):
-          if c[i]==letter and c[i+1:i+4].isdigit():# and not c[i+4].isdigit():
-              tags.add(c[i:i+4])
-          elif i+5 <= len(c) and c[i]==letter and c[i+1]==' ' and c[i+2:i+5].isdigit():
-              tags.add(c[i:i+5])
-              #and not c[i+5].isdigit():
-      
-    if len(tags)==0: return '?'
-    return ','.join(list(tags))
+
 
 
 def get_violations(c):
@@ -40,25 +28,7 @@ def get_violations(c):
     return result#','.join(list(result))
 
 
-def length_of_report(c):
-  L = c.split()
-  possible = []
-  for i in range(len(L)):
-      if L[i].lower() == 'of':
-          if L[i-1].isdigit() and L[i+1].isdigit():
-              possible.append(L[i+1])
-  counts = dict()
-  for elem in possible:
-      if elem in counts: counts[elem] += 1
-      else: counts[elem]=1
-  most = 0
-  best = 0
-  for elem in counts:
-      if counts[elem]>most: 
-        best = elem
-        most = counts[elem]
-  if best == 0: return '?'
-  return str(int(best) + 1)
+
 
 
 def get_date(d):
@@ -180,7 +150,7 @@ def pull_data(c,columns_add,full_path='None'):
     result = dict()
     result['Facility Name'] = find_PIN(c)
     result['Type of Facility'] = None
-    result['Length of Report'] = str(length_of_report(c))
+    result['Length of Report'] = shared_functions.length_of_report(c)
     
     result['Date of Original Survey'] = shared_functions.date_of_survey(c).upper()
     result['Date of Results']=shared_functions.date_of_results(c).upper()
@@ -190,9 +160,9 @@ def pull_data(c,columns_add,full_path='None'):
     populate_violations(result,violations,c)
     result['Violations List'] = ','.join(list(violations))
     if result['Violations List'] == '': result['Violations List'] = '?'
-    result['R tags']=get_all_letter_tags(c,'R')
-    result['A tags']=get_all_letter_tags(c,'A')
-    result['Emergency Preparedness']=get_all_letter_tags(c,'E')
+    result['R tags']=shared_functions.get_all_letter_tags(c,'R')
+    result['A tags']=shared_functions.get_all_letter_tags(c,'A')
+    result['Emergency Preparedness']=shared_functions.get_all_letter_tags(c,'E')
     result['Severity Levels'] = shared_functions.get_severity(c)
     violations_bool = get_viol_bool(result['R tags'])
     if violations_bool: n = 'Y' 

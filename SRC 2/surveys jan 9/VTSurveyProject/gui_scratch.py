@@ -1,5 +1,6 @@
 # gui_scratch.py
 '''Vermont Survey Statement Tool'''
+from .page_count import run_counts
 #from VTSurveyProject.new_pdf_download import main_download
 from .new_pdf_download import main_download
 from .analyze_wrapper import main_analyze
@@ -10,6 +11,11 @@ import threading
 import os
 from .shared import pull_data_from_excel
 from .file_IO_setup import setup_file_system
+page_counts = None
+
+alr_options = [1,2,3,4,5]
+rch_options = [1,2,3,4,5]
+snf_options = [1,2,3,4,5]
 def write_file(path,contents):
     f = open(path, "w")
     f.write(contents)
@@ -41,19 +47,30 @@ class TkRootWindow():
             setup_file_system()
         self.download_button=None
         self.analyze_button=None
+        self.update_button=None
 
     def mainloop(self):
         self.root.mainloop()
-
+    def on_update():
+        if 'update_complete.txt' in os.listdir(): os.remove('update_complete.txt')
+        app_object.update_button.config(state=tk.DISABLED)
+        global UPDATE_THREAD
+        UPDATE_THREAD = threading.Thread(target=run_counts).start()
     def on_download():
+        try: 
+            t= read_file('page_count_results.txt')
+            result = eval(t)
+            page_counts = result
+        except:
+            app_object.update_button.invoke()
         if 'download_complete.txt' in os.listdir(): os.remove('download_complete.txt')
         app_object.download_button.config(state=tk.DISABLED)
         global DOWNLOAD_THREAD
         start_year = variables['Start Year'].get()
         ALR,RCH,SNF = variables['ALR Download'].get(),variables['RCH Download'].get(),variables['SNF Download'].get()
-        DOWNLOAD_THREAD = threading.Thread(target=main_download,args=(variables['Query'].get(),start_year,ALR,RCH,SNF)).start()
+        RCH_Pages,ALR_Pages,SNF_Pages = int(variables['RCH Page Options'].get()),int(variables['ALR Page Options'].get()),int(variables['SNF Page Options'].get())
+        DOWNLOAD_THREAD = threading.Thread(target=main_download,args=(variables['Query'].get(),start_year,ALR,RCH,SNF,ALR_Pages,RCH_Pages,SNF_Pages)).start()
 
-        #main_download(variables['Query'].get(),ALR,RCH,SNF)
     def on_analyze():
         if 'analyze_complete.txt' in os.listdir(): os.remove('analyze_complete.txt')
         app_object.analyze_button.config(state=tk.DISABLED)
@@ -62,11 +79,7 @@ class TkRootWindow():
         columns_add = variables['columns to add'].get(1.0,tk.END).split(',')
         if columns_add==[''] or columns_add==['\n']: columns_add = []
         ANALYZE_THREAD = threading.Thread(target=main_analyze,args=(columns_add,ALR,RCH,SNF)).start()
-        #main_analyze(columns_add,ALR,RCH,SNF)
-#class TkViewWindow(TkRootWindow):
-#    def __init__(): return
-#    def on_view():
-#        print('hello')
+
 
 def numfilestxt(TYPE):
     p = 'Survey Statements/%s/PageLinks'%TYPE
@@ -95,6 +108,27 @@ def test():
 
 
 def download_and_analyze():
+    def update_cb_box_alr(): 
+        global alr_options
+        if page_counts != None:
+            alr = page_counts['alr']
+            if not (alr+1 in alr_options):
+                alr_options+=[alr+1]
+                ALR_Combo['values']=alr_options
+    def update_cb_box_rch(): 
+        global rch_options
+        if page_counts != None:
+            rch = page_counts['rch']
+            if not (rch+1 in rch_options): 
+                rch_options+=[rch+1]
+                RCH_Combo['values']=rch_options
+    def update_cb_box_snf(): 
+        global snf_options
+        if page_counts != None:
+            snf = page_counts['snf']
+            if not (snf+1 in snf_options):
+                snf_options+=[snf+1]
+                SNF_Combo['values']=snf_options
     def label_hover(s):
         status_label.config(text = s)
     def label_hover_leave(e):
@@ -109,13 +143,10 @@ def download_and_analyze():
 
     n = ttk.Notebook(root)
     n.pack(expand=1,fill=tk.BOTH)
-    #ttk.Label(root,text="Download/Analyze Page",font=('TkDefaultFont',20)).grid()
     drf = ttk.Frame(n)#root)
     drf2 = ttk.Frame(n)
     n.add(drf,text='Download')
     n.add(drf2,text='Analyze')
-    #drf.grid(padx=10,sticky=(tk.E+tk.W))
-    #drf.columnconfigure(0,weight=1)
     
     
     
@@ -133,7 +164,6 @@ def download_and_analyze():
     variables['RCH Files Found'] = tk.StringVar()
     variables['RCH Files Down'] = tk.StringVar()
 
-     #root.setvar(name='SNF Files,value'),master=root,name='SNF Files'
     variables['Query'] = tk.StringVar()
     query_label = ttk.Label(r_info,text='String Query')
     query_label.grid(row=0,column=0)
@@ -172,20 +202,51 @@ def download_and_analyze():
     ttk.Label(r_info,textvariable=variables['RCH Files Found'],borderwidth=1,relief='raised').grid(row=6+shift,column=3,padx=5)
     ttk.Label(r_info,textvariable=variables['RCH Files Down'],borderwidth=1,relief='raised').grid(row=6+shift,column=4,padx=5)
 
+    
+    
+    variables['RCH Page Options'] = tk.StringVar()
+    
+    global RCH_Combo
+    RCH_Combo = ttk.Combobox(r_info,textvariable=variables['RCH Page Options'],values=rch_options,postcommand=update_cb_box_rch)
+    RCH_Combo.current(0)
+    RCH_Combo.grid(row=7,column=5,sticky=(tk.E))
+
     ttk.Checkbutton(r_info, variable=variables['ALR Download'],text = 'ALR').grid(row = 7+shift,column = 0,sticky = tk.W,pady= 5)
     ttk.Label(r_info,textvariable=variables['ALR Files Found'],borderwidth=1,relief='raised').grid(row=7+shift,column=3,padx=5)
     ttk.Label(r_info,textvariable=variables['ALR Files Down'],borderwidth=1,relief='raised').grid(row=7+shift,column=4,padx=5)
+
+    variables['ALR Page Options'] = tk.StringVar()
+    global ALR_Combo
+    ALR_Combo = ttk.Combobox(r_info,textvariable=variables['ALR Page Options'],values=alr_options,postcommand=update_cb_box_alr)
+    ALR_Combo.current(0)
+    ALR_Combo.grid(row=8,column=5,sticky=(tk.E))
 
     ttk.Checkbutton(r_info, variable=variables['SNF Download'],text = 'SNF').grid(row = 8+shift,column = 0,sticky = tk.W,pady= 5)
     ttk.Label(r_info,textvariable=variables['SNF Files Found'],borderwidth=1,relief='raised').grid(row=8+shift,column=3,padx=5)
     ttk.Label(r_info,textvariable=variables['SNF Files Down'],borderwidth=1,relief='raised').grid(row=8+shift,column=4,padx=5)
 
+    variables['SNF Page Options'] = tk.StringVar()
+
+    global SNF_Combo
+    SNF_Combo = ttk.Combobox(r_info,textvariable=variables['SNF Page Options'],values=snf_options,postcommand=update_cb_box_snf)
+    SNF_Combo.current(0)
+    SNF_Combo.grid(row=9,column=5,sticky=(tk.E))
+
     download_button = ttk.Button(r_info,text='Download')
     download_button.grid(row = 10+shift,column=0,sticky = tk.W,padx=5,pady=5)
     download_button.configure(command=TkRootWindow.on_download)
     app_object.download_button = download_button
-    #download_status_var = tk.StringVar(value='Download Status: Not started')
-    #ttk.Label(r_info, textvariable=download_status_var).grid(row = 12, column = 0,sticky = (tk.E + tk.W),padx = 5,pady=10)
+
+
+    update_button = ttk.Button(r_info,text='Update Page Counts')
+    update_button.grid(row = 1,column=5,sticky = tk.W,padx=5,pady=5)
+    update_button.configure(command=TkRootWindow.on_update)
+    app_object.update_button = update_button
+    
+    message_update = 'Reads vermont.gov for current total page count\nselect in dropdown menus below'
+    update_button.bind("<Enter>",lambda s=message_update: label_hover(message_update))
+    update_button.bind("<Leave>",label_hover_leave)
+
 
     analyze = ttk.LabelFrame(drf2,text='Analyze Options') #font=('TkDefaultFont',16))
     analyze.grid(sticky=(tk.W+tk.E),pady=20,padx=5)
@@ -218,18 +279,8 @@ def download_and_analyze():
     analyze_button.grid(row = 5+shift,column = 0,sticky = tk.W,padx=5,pady=5)
     analyze_button.configure(command=TkRootWindow.on_analyze)
     app_object.analyze_button = analyze_button
-    #analyze_status_var = tk.StringVar(value='Analysis Status: Not started')
-    #ttk.Label(analyze, textvariable=analyze_status_var).grid(row = 7, column = 0,sticky = (tk.E + tk.W),padx = 5,pady=10)    
+
     
-#    view = ttk.LabelFrame(drf,text='View Options') #font=('TkDefaultFont',16))
-#    view.grid(sticky=(tk.W + tk.E))  
-#    type_options = ['ALR','RCH','SNF']
-#    variables['View Type'] = tk.StringVar()
-#    ttk.Label(view, text='Facilty Type').grid(row=0,column=0)
-#    ttk.Combobox(view,textvariable=variables['View Type'],values=type_options).grid(row=0,column=0,sticky=(tk.W+tk.E))
-#    view_button = ttk.Button(view,text='View')
-#    view_button.grid(row = 1,column=0,sticky = tk.W,padx=5,pady=5)
-#    view_button.configure(command=TkViewWindow.on_view)
     def check_buttons():
         files = os.listdir()
         p = 'download_complete.txt'
@@ -240,6 +291,14 @@ def download_and_analyze():
         if p in files:
             app_object.analyze_button.config(state=tk.NORMAL)
             os.remove(p)
+        p = 'update_complete.txt'
+        if p in files:
+            app_object.update_button.config(state=tk.NORMAL)
+            os.remove(p)
+            global page_counts
+            t = read_file('page_count_results.txt')
+            result = eval(t)
+            page_counts = result            
         root.after(1000,check_buttons)
     def update_files():
         variables['SNF Files Down'].set(str(len(os.listdir('Survey Statements/SNF/PDF'))))
@@ -253,7 +312,6 @@ def download_and_analyze():
         variables["RCH PDF's Converted"].set(str(len(os.listdir('Survey Statements/RCH/txt1'))))
         variables["SNF PDF's Converted"].set(str(len(os.listdir('Survey Statements/SNF/txt1'))))  
         root.update_idletasks()
-        #print('here')
         root.after(1000,update_files)
     update_files()
     check_buttons()
@@ -262,6 +320,7 @@ def download_and_analyze():
         global ANALYZE_THREAD 
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             write_file('kill_threads.txt','Testing')
+            #delete page_count_results.txt
             root.destroy()
     root.protocol("WM_DELETE_WINDOW",on_closing)
     app_object.mainloop()
@@ -270,6 +329,6 @@ def download_and_analyze():
 
 if os.path.exists('kill_threads.txt'):
     os.remove('kill_threads.txt')
-#download_and_analyze()
+
 
 

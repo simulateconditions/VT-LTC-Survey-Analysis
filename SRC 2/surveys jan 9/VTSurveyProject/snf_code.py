@@ -21,19 +21,7 @@ def readFile(path):
         return f.read()
 
   
-def get_all_F_tags(c):
-    F_tags = set()
-    for line in c.splitlines():
-        try:
-            if line.startswith('F ') and line[2:2+3].isdigit() and line[5].isspace():
-                F_tags.add(line[0:5])
-        except: pass
-        try:
-            if line.startswith('{F ') and line[3:3+3].isdigit() and line[6] == '}': 
-                F_tags.add(line[1:6])
-        except: pass
-    if len(F_tags)==0: return '?'
-    return ','.join(list(F_tags))
+
   
 def get_violations(c):
     result = []
@@ -56,15 +44,7 @@ def get_violations(c):
 asdfasdf
 asdfasd"""
 
-def length_of_report(c):
-  s = 'Page 1 of '
-  n = '?'
-  for line in c.splitlines():
-      if s in line:
-          i = line.find(s)
-          n = line[i+len(s):]
-          break
-  return n
+
 
 def get_viol_bool(s):
     l = s.split(',')
@@ -78,9 +58,9 @@ def get_viol_bool(s):
 
 def pull_data(c,columns_add,full_path='None'):
     result = dict()
-    result['Length of Report'] = length_of_report(c) + ' pages'
+    result['Length of Report'] = shared_functions.length_of_report(c)
     result['Violations'] = get_violations(c)
-    result['F tags'] = get_all_F_tags(c)
+    result['F tags'] = shared_functions.get_all_F_tags(c)
     result['Facility Name'] = find_PIN_snf(c)
     
     result['Date of Original Survey'] = shared_functions.date_of_survey(c)

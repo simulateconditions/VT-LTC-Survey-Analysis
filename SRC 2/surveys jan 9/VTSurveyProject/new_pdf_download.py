@@ -51,7 +51,8 @@ class SurveyLinkPage(Request):
                 pdf_name = temp_link[i1:i2]
                 return Survey(pdf_name)
     def get_link(self):
-        return self.survey.full_link  
+        return self.survey.full_link
+          
         
 class SurveyListPage(Request):
     root_url = 'https://dlp.vermont.gov/document-categories/'
@@ -71,7 +72,7 @@ class SurveyListPage(Request):
         return s[s1+1:s2]
     def get_year(s):
         for elem in s.split('-'):
-            if elem.isdigit() and len(elem)==4:
+            if elem.isdigit() and len(elem)==4 and elem.startswith('2'):
                 return elem
     def get_survey_link_pages(self):
         
@@ -150,8 +151,7 @@ def download_TYPE_links(TYPE):
     write_file('Survey Statements/%s'%TYPE + '/FailedDownload.txt','\n'.join(failed))
 
 ##########################################################################################################
-def main_download(query,start_year,ALR,RCH,SNF):
-    print('HEREEEEE')
+def main_download(query,start_year,ALR,RCH,SNF,nA,nR,nS):
     currentYear = datetime.datetime.now().year
     global years
     if len(start_year)==4:
@@ -162,15 +162,14 @@ def main_download(query,start_year,ALR,RCH,SNF):
     files = os.listdir()
     if not ('Survey Statements' in files):
         setup_file_system()
-    #query = '-'.join(query.split(' '))
-    print(query)
+
     result = 'go'
     if ALR: 
-        result = load_TYPE_links('ALR',10,search = query)#13
+        result = load_TYPE_links('ALR',nA,search = query)#13
     if RCH and result!='STOP': 
-        result = load_TYPE_links('RCH',10,search = query)  #47
+        result = load_TYPE_links('RCH',nR,search = query)  #47
     if SNF and result!='STOP': 
-        result = load_TYPE_links('SNF',10,search = query)#132
+        result = load_TYPE_links('SNF',nS,search = query)#132
     print('downloading links that just loaded')
     if ALR and result!='STOP': 
         result = download_TYPE_links('ALR')

@@ -11,7 +11,10 @@ import os
 #forget why needed...for OCV code...
 
 def PDF_to_TXT_Wrapper(ALR,RCH,SNF):
-#root directory
+    ALR_bool = bool(ALR)
+    RCH_bool = bool(RCH)
+    SNF_bool = bool(SNF)
+    #root directory
     root_dir = 'Survey Statements'
     
     #PDF Files
@@ -21,17 +24,18 @@ def PDF_to_TXT_Wrapper(ALR,RCH,SNF):
     #PDF Files Full Path
     ALR_path = os.path.join(root_dir,ALR_pdf)
     RCH_path = os.path.join(root_dir,RCH_pdf)
-    SNF_path = os.path.join(root_dir,SNF_pdf)
-#Lists of PDF Files
-    ALR_pdf_files = list_files(ALR_path)
-    RCH_pdf_files = list_files(RCH_path)
-    print(RCH_pdf_files)
-    SNF_pdf_files = list_files(SNF_path)
-#UI Outputs
-    print('PDF files are loaded:')
-    print(len(ALR_pdf_files),' ALR files')
-    print(len(RCH_pdf_files),' RCH files')
-    print(len(SNF_pdf_files),' SNF files')
+    SNF_path = os.path.join(root_dir,SNF_pdf)   
+    
+    print('PDF files loaded:')
+    if ALR_bool: 
+        ALR_pdf_files = list_files(ALR_path)        
+        print(len(ALR_pdf_files),' ALR files')
+    if RCH_bool: 
+        RCH_pdf_files = list_files(RCH_path)
+        print(len(RCH_pdf_files),' RCH files')
+    if SNF_bool: 
+        SNF_pdf_files = list_files(SNF_path)
+        print(len(SNF_pdf_files),' SNF files')
 
 
 
@@ -46,17 +50,15 @@ def PDF_to_TXT_Wrapper(ALR,RCH,SNF):
 
 #txt1 UI and Conversion!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     print('\n\n**Converting PDF to TXT with Pytesseract**\n\n')
-
-    print('\nTo begin converting...please enter 1 or 0 to the following prompts:\n')
     result = 'go'
-    ALR_bool = ALR
-    if bool(ALR_bool):
+    
+    if ALR_bool:
         result = convert(ALR_pdf_files,ALR_path,ALR_path_new)
-    RCH_bool = RCH
-    if bool(RCH_bool) and result!='STOP':
+    
+    if RCH_bool and result!='STOP':
         result = convert(RCH_pdf_files,RCH_path,RCH_path_new)
-    SNF_bool = SNF
-    if bool(SNF_bool) and result!='STOP':
+    
+    if SNF_bool and result!='STOP':
         result = convert(SNF_pdf_files,SNF_path,SNF_path_new)
 
     l1 = len(os.listdir(ALR_path_new))
@@ -82,16 +84,14 @@ def PDF_to_TXT_Wrapper(ALR,RCH,SNF):
 
     print('\n\n**Converting PDF to TXT with OpenCV**\n\n')
 
-    print('\nTo begin converting...please enter 1 or 0 to the following prompts:\n')
-
     ALR_bool = ALR
-    if bool(ALR_bool) and result!='STOP':
+    if ALR_bool and result!='STOP':
         result = work(ALR_pdf_files,ALR_path,ALR_path_new)
     RCH_bool = RCH
-    if bool(RCH_bool) and result!='STOP':
+    if RCH_bool and result!='STOP':
         result = work(RCH_pdf_files,RCH_path,RCH_path_new)
     SNF_bool = SNF
-    if bool(SNF_bool) and result!='STOP':
+    if SNF_bool and result!='STOP':
         result = work(SNF_pdf_files,SNF_path,SNF_path_new)
 
     l1 = len(os.listdir(ALR_path_new))
@@ -119,16 +119,14 @@ def PDF_to_TXT_Wrapper(ALR,RCH,SNF):
 
     print('\n\n**Converting PDF to TXT with PyPDF2**\n\n')
 
-    print('\nTo begin converting...please enter 1 or 0 to the following prompts:\n')
-
     ALR_bool = ALR
-    if bool(ALR_bool) and result!='STOP':
+    if ALR_bool and result!='STOP':
         result = txt3(ALR_pdf_files,ALR_path,ALR_path_new)
     RCH_bool = RCH
-    if bool(RCH_bool) and result!='STOP':
+    if RCH_bool and result!='STOP':
         result = txt3(RCH_pdf_files,RCH_path,RCH_path_new)
     SNF_bool = SNF
-    if bool(SNF_bool) and result!='STOP':
+    if SNF_bool and result!='STOP':
         result = txt3(SNF_pdf_files,SNF_path,SNF_path_new)
 
     l1 = len(os.listdir(ALR_path_new))

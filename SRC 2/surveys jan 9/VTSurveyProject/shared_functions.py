@@ -4,6 +4,75 @@ from .PIN_code import *
 import VTSurveyProject.rch_alr_code as rch_alr_code
 import VTSurveyProject.snf_code as snf_code
 import traceback
+def get_all_F_tags(c):
+    A = get_all_F_tags_old(c)
+    B = get_all_letter_tags(c,'F')
+    return A+'/'+B
+
+def get_all_F_tags_old(c):
+    F_tags = set()
+    for line in c.splitlines():
+        try:
+            if line.startswith('F ') and line[2:2+3].isdigit() and line[5].isspace():
+                F_tags.add(line[0:5])
+        except: pass
+        try:
+            if line.startswith('{F ') and line[3:3+3].isdigit() and line[6] == '}': 
+                F_tags.add(line[1:6])
+        except: pass
+    if len(F_tags)==0: return '?'
+    return ','.join(list(F_tags))
+
+def get_all_letter_tags(c,letter):
+    tags = set()
+    for i in range(len(c)):
+      
+      if i<len(c) and i+1 < len(c) and i+4<=len(c):
+          if c[i]==letter and c[i+1:i+4].isdigit():# and not c[i+4].isdigit():
+              tags.add(c[i:i+4])
+          elif i+5 <= len(c) and c[i]==letter and c[i+1]==' ' and c[i+2:i+5].isdigit():
+              tags.add(c[i:i+5])
+              #and not c[i+5].isdigit():
+      
+    if len(tags)==0: return '?'
+    return ','.join(list(tags))
+
+def length_of_report_secondary(c):
+  L = c.split()
+  possible = []
+  for i in range(len(L)):
+      if L[i].lower() == 'of':
+          if L[i-1].isdigit() and L[i+1].isdigit():
+              possible.append(L[i+1])
+  counts = dict()
+  for elem in possible:
+      if elem in counts: counts[elem] += 1
+      else: counts[elem]=1
+  most = 0
+  best = 0
+  for elem in counts:
+      if counts[elem]>most: 
+        best = elem
+        most = counts[elem]
+  if best == 0: return '?'
+  return str(int(best) + 1)
+
+
+def length_of_report_simple(c):
+  s = 'Page 1 of '
+  n = '?'
+  for line in c.splitlines():
+      if s in line:
+          i = line.find(s)
+          n = line[i+len(s):]
+          break
+  return n
+
+def length_of_report(c):
+    A = length_of_report_simple(c)
+    B = length_of_report_secondary(c)
+    return A+'/'+B
+
 def merge_dicts(d1,d2,priority=0):
     for key in d1:
         if key == 'Facility Name':
