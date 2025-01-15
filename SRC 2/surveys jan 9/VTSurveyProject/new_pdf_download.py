@@ -125,9 +125,8 @@ def to_excel(L,TYPE):
 def download_TYPE_links(TYPE):
     ssl._create_default_https_context = ssl._create_unverified_context
     path = 'Survey Statements/%s/current_%s_pdf_links.xlsx'%(TYPE,TYPE)
-    links = pull_data_from_excel(path,(0,))#('%s LINKS'%TYPE,))
-    print(links)
-    print(len(links),'PDF files to download')
+    links = pull_data_from_excel(path,(0,))
+    print(len(links)-1,'PDF files to download')
     #input('press enter to continue')
     destination_path = 'Survey Statements/%s/PDF'%TYPE
     failed = []
