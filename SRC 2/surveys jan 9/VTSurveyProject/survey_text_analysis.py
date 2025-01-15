@@ -30,9 +30,7 @@ def get_pin_count(d):
 		if d[facility]=='?': missing += 1
 		else: there += 1
 	return (there,missing)
-def data_to_json_excel(columns_add,ALR,RCH,SNF): #didn't use bools yet
-	#steps :D
-    print(ALR,RCH,SNF)
+def data_to_json_excel(columns_add,ALR,RCH,SNF):
     ALR_PATH = os.path.join('Survey Statements','ALR')
     RCH_PATH = os.path.join('Survey Statements','RCH')
     SNF_PATH = os.path.join('Survey Statements','SNF')
@@ -87,7 +85,6 @@ def data_to_json_excel(columns_add,ALR,RCH,SNF): #didn't use bools yet
 
 def data_main(root_path,facility_type,columns_add):
     json_data = pull_all_data(root_path,facility_type,columns_add) 
-    print(len(json_data))
     try:
     	json_data = transpose(json_data)
     except: pass

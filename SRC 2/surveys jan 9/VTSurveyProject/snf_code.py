@@ -73,7 +73,6 @@ def pull_data(c,columns_add,full_path='None'):
     
     words = ["contracted"]
     shared_key_words = shared_functions.shared_key_words
-    print(columns_add,'***********************************************')
     key_word_search = shared_key_words(c,columns_add+words) #any words to always search should go in words
     for key in key_word_search:
       result[key] = key_word_search[key]

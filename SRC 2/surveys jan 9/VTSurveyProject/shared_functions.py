@@ -13,11 +13,11 @@ def get_all_F_tags_old(c):
     F_tags = set()
     for line in c.splitlines():
         try:
-            if line.startswith('F ') and line[2:2+3].isdigit() and line[5].isspace():
+            if line.startswith('F ') and line[2:2+3].isdigit() :#and line[5].isspace():
                 F_tags.add(line[0:5])
         except: pass
         try:
-            if line.startswith('{F ') and line[3:3+3].isdigit() and line[6] == '}': 
+            if line.startswith('{F ') and line[3:3+3].isdigit() :#and line[6] == '}': 
                 F_tags.add(line[1:6])
         except: pass
     if len(F_tags)==0: return '?'
@@ -40,7 +40,7 @@ def get_all_letter_tags(c,letter):
 def length_of_report_secondary(c):
   L = c.split()
   possible = []
-  for i in range(len(L)):
+  for i in range(len(L)-1):
       if L[i].lower() == 'of':
           if L[i-1].isdigit() and L[i+1].isdigit():
               possible.append(L[i+1])
@@ -163,8 +163,6 @@ def date_of_survey(c,sentence=None):
     word = L[i]
     if (word in MONTHS) and i<len(L)-2:
         date = MONTHS_DICT[word] +'-'+ L[i+1][:-1].strip() + '-' + L[i+2].strip()
-        #date = word + L[i+1] + ' '+ L[i+2] #except the last letter of third word
-        #print('HERE')
         break
   return date
   
@@ -215,21 +213,6 @@ def type_of_survey(c,violations_bool,sentence=None):
 
   return '?'
       
-  #old code
-
-  # for i in range(len(L)):
-  #     word = L[i]
-  #     for kw in key_words:
-  #         if word == kw:
-  #           if word=='annual' and L[i+1]=='survey':
-  #               type = 'health'
-  #           else: type = kw
-  #           break
-  
-  # if type == 'acceptable' or type== 'accepted': type = type + ' plans'
-  # elif type == 're-licensure': type = 'health'
-  # elif type=='complaint' and 'investigation' in sentence: type = 'investigation'
-  # return type    
 
 
 def get_severity(c):
@@ -245,25 +228,20 @@ def pull_all_data(P,facility_type,columns_add):
     if facility_type == 'SNF':
         pull_data = snf_code.pull_data
     else: pull_data = rch_alr_code.pull_data
-    #print(pull_data)
     txt1 = os.path.join(P,'txt1')
     txt2 = os.path.join(P,'txt2')
     txt3 = os.path.join(P,'txt3')
     txt1_paths = list_txt_files(txt1)
-    #print('PATHS',paths)
     all_data = dict()
-    #print(len(paths))
     data_pulled = dict()
     for txt_name in txt1_paths:    
-        #print(data_pulled)
         pdf_path = os.path.join(P,'PDF',txt_name[:-3]+'pdf')
         try:
             path_to_txt1 = os.path.join(txt1,txt_name)
             contents1 = readFile(path_to_txt1)
             data_pulled1 = pull_data(contents1,columns_add,full_path=pdf_path)
             data_pulled = data_pulled1
-            # if data_pulled1['Type of Survey'] == '*': print('XXX',pdf_path,data_pulled1['R tags'],data_pulled1['Type of Survey'])
-            # if data_pulled1['Type of Survey'] == '**': print('000',pdf_path,data_pulled1['R tags'],data_pulled1['Type of Survey'])
+         
         except Exception as e: 
             print(facility_type,'EXCEPTION',e,type(e),type(e).__name__)
             
@@ -271,9 +249,6 @@ def pull_all_data(P,facility_type,columns_add):
             path_to_txt2 = os.path.join(txt2,txt_name)
             contents2 = readFile(path_to_txt2)
             data_pulled2 = pull_data(contents2,columns_add)
-#            if facility_type == 'SNF':
-#                print('Katja')
-#                print(contents2)
             data_pulled = merge_dicts(data_pulled,data_pulled2,priority=1)
         except Exception as e:
             print(facility_type,'EXCEPTION',e,type(e),type(e).__name__)
@@ -283,22 +258,16 @@ def pull_all_data(P,facility_type,columns_add):
             contents3 = readFile(path_to_txt3)
             
             data_pulled3 = pull_data(contents3,columns_add)
-            print(data_pulled3['Severity Levels'])
             data_pulled = merge_dicts(data_pulled,data_pulled3)
         except Exception as e:
             print(facility_type,'EXCEPTION',e,type(e),type(e).__name__)
             traceback.print_exc()
         try:
-            #print(data_pulled)
             data_pulled['Type of Facility'] = facility_type
-            #data_pulled['Time Between (days)'] = rch_alr_code.time_elapsed(data_pulled['Date of Original Survey'],data_pulled['Date of Results'])
             all_data[txt_name] = data_pulled 
         except Exception as e: 
             print('zero data pulled',txt_name)
             print(facility_type,'EXCEPTION',e, type(e),type(e).__name__)
-    #print(len(all_data),'ALL DATA')
-    #line below hopefully not needed
-    #all_data = update_pin(all_data,data_pulled3)
-    #print('HERE')
+
     return all_data
 

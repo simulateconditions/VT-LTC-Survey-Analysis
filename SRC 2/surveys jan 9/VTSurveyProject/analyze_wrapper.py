@@ -9,6 +9,5 @@ def write_file(path,contents):
 
 def main_analyze(columns_add, ALR,RCH,SNF):
     result = PDF_to_TXT_Wrapper(ALR,RCH,SNF)
-    print('ADD!',repr(columns_add))
     if result != 'STOP' : data_to_json_excel(columns_add,ALR,RCH,SNF)
     write_file('analyze_complete.txt','Testing')
